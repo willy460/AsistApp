@@ -1,11 +1,37 @@
 // models/estudiantes.js
+// Modelo de datos para Estudiantes.
+// El profesor registra cada estudiante con ID, nombre y celular.
+// No hay estudiantes predeterminados.
 
+export function crearEstudiante(id, nombre, celular) {
+  return {
+    id: id.trim().toUpperCase(),
+    nombre: nombre.trim(),
+    celular: celular.trim(),
+  };
+}
+
+export function validarEstudiante(id, nombre, celular) {
+  if (!id || id.trim() === '') {
+    return { valido: false, error: 'El ID del estudiante no puede estar vacio.' };
+  }
+  if (!nombre || nombre.trim() === '') {
+    return { valido: false, error: 'El nombre no puede estar vacio.' };
+  }
+  if (!celular || celular.trim().length < 10) {
+    return { valido: false, error: 'El celular debe tener al menos 10 digitos.' };
+  }
+  return { valido: true, error: null };
+}
+
+// Busca un estudiante por ID (sin distinguir mayusculas)
 export function buscarEstudiante(estudianteId, lista) {
   return lista.find(
     (e) => e.id.toLowerCase() === estudianteId.toLowerCase()
   ) || null;
 }
 
+// Valida que ID + celular coincidan (HU7 - anti suplantacion)
 export function validarIdentidad(estudianteId, celular, lista) {
   const estudiante = buscarEstudiante(estudianteId, lista);
   if (!estudiante) {
@@ -27,15 +53,7 @@ export function validarIdentidad(estudianteId, celular, lista) {
   return { valido: true, estudiante, error: null };
 }
 
-export function perteneceAClase(estudiante, claseId) {
-  return estudiante.claseIds.includes(claseId);
+// Verifica si el estudiante esta inscrito en la clase (HU4)
+export function perteneceAClase(estudianteId, clase) {
+  return clase.estudianteIds.includes(estudianteId.toUpperCase());
 }
-
-export const ESTUDIANTES_INICIALES = [
-  { id: 'EST001', nombre: 'Ana Garcia',    celular: '3001234567', claseIds: ['clase_001', 'clase_002'] },
-  { id: 'EST002', nombre: 'Carlos Lopez',  celular: '3109876543', claseIds: ['clase_001'] },
-  { id: 'EST003', nombre: 'Maria Torres',  celular: '3154567890', claseIds: ['clase_001', 'clase_002'] },
-  { id: 'EST004', nombre: 'Juan Perez',    celular: '3203216547', claseIds: ['clase_002'] },
-  { id: 'EST005', nombre: 'Laura Sanchez', celular: '3007891234', claseIds: ['clase_001'] },
-  { id: 'EST006', nombre: 'Diego Ramirez', celular: '3116543210', claseIds: ['clase_001', 'clase_002'] },
-];

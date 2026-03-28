@@ -1,5 +1,6 @@
-// app/(tabs)/index.js
+// app/(tabs)/index.tsx
 // Estado global y navegacion entre pantallas.
+// Maneja: clases, estudiantes, registros y logs (HU12).
 
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
@@ -8,25 +9,50 @@ import ProfesorView   from '../../components/ProfesorView';
 import EstudianteView from '../../components/EstudianteView';
 import ResultadoView  from '../../components/ResultadoView';
 
-import { CLASES_INICIALES } from '../../models/clases';
-import { ESTUDIANTES_INICIALES } from '../../models/estudiantes';
+// ── Tipos base inferidos del estado vacío inicial ──
+type Clase      = { id: string; nombre: string; horaInicio: string; horaFin: string; [key: string]: any };
+type Estudiante = { id: string; nombre: string; celular: string; claseIds: string[] };
+type Registro   = { estudianteId: string; claseId: string; fecha: string; [key: string]: any };
+type Log        = { mensaje: string; timestamp?: string; [key: string]: any };
+type Resultado  = { exito: boolean; mensaje: string; detalle?: string; nuevoRegistro?: Registro | null } | null;
 
 export default function Index() {
-  const [clases, setClases] = useState(CLASES_INICIALES);
-  const [estudiantes] = useState(ESTUDIANTES_INICIALES);
-  const [registros, setRegistros] = useState([]);
-  const [pantalla, setPantalla] = useState('inicio');
-  const [resultado, setResultado] = useState(null);
+  // Estado global — todo arranca vacio (sin datos predeterminados)
+  const [clases,      setClases]      = useState<Clase[]>([]);
+  const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
+  const [registros,   setRegistros]   = useState<Registro[]>([]);
+  const [logs,        setLogs]        = useState<Log[]>([]);
 
-  const estadoGlobal = { clases, estudiantes, registros };
+  const [pantalla,  setPantalla]  = useState('inicio');
+  const [resultado, setResultado] = useState<Resultado>(null);
 
-  const agregarClase = (nueva: typeof CLASES_INICIALES[0]) => setClases((prev) => [...prev, nueva]);
-  const agregarRegistro = (nuevo: typeof registros[0]) => setRegistros((prev) => [...prev, nuevo]);
+  const estadoGlobal = { clases, estudiantes, registros, logs };
+
+  // Agrega una clase nueva
+  const agregarClase = (nueva: Clase) => setClases((prev) => [...prev, nueva]);
+
+  // Actualiza una clase existente (ej: cuando se inscribe un estudiante)
+  const actualizarClase = (claseActualizada: Clase) =>
+    setClases((prev) => prev.map((c) => c.id === claseActualizada.id ? claseActualizada : c));
+
+  // Agrega un estudiante nuevo al sistema
+  const agregarEstudiante = (nuevo: Estudiante) => setEstudiantes((prev) => [...prev, nuevo]);
+
+  // Agrega un registro de asistencia
+  const agregarRegistro = (nuevo: Registro) => setRegistros((prev) => [...prev, nuevo]);
+
+  // Agrega un log de intento fallido (HU12)
+  const agregarLog = (log: Log) => setLogs((prev) => [...prev, log]);
+
   if (pantalla === 'profesor') {
     return (
       <ProfesorView
         estado={estadoGlobal}
         onAgregarClase={agregarClase}
+        onActualizarClase={actualizarClase}
+        onAgregarEstudiante={agregarEstudiante}
+        onAgregarRegistro={agregarRegistro}
+        onAgregarLog={agregarLog}
         onVolver={() => setPantalla('inicio')}
       />
     );
@@ -37,8 +63,9 @@ export default function Index() {
       <EstudianteView
         estado={estadoGlobal}
         onActualizar={agregarRegistro}
+        onAgregarLog={agregarLog}
         onVolver={() => setPantalla('inicio')}
-        onResultado={(r: typeof resultado) => { setResultado(r); setPantalla('resultado'); }}
+        onResultado={(r: Resultado) => { setResultado(r); setPantalla('resultado'); }}
       />
     );
   }
@@ -53,12 +80,13 @@ export default function Index() {
     );
   }
 
+  // PANTALLA DE INICIO
   return (
     <View style={styles.contenedor}>
       <StatusBar barStyle="light-content" backgroundColor="#0f0f1a" />
 
       <View style={styles.encabezado}>
-        <Text style={styles.titulo}>SmartAttendance QR</Text>
+        <Text style={styles.titulo}>AsistApp</Text>
         <Text style={styles.subtitulo}>Control de asistencia</Text>
       </View>
 
@@ -71,17 +99,26 @@ export default function Index() {
       )}
 
       <View style={styles.botones}>
-        <TouchableOpacity style={[styles.boton, styles.botonProfesor]} onPress={() => setPantalla('profesor')}>
+        <TouchableOpacity
+          style={[styles.boton, styles.botonProfesor]}
+          onPress={() => setPantalla('profesor')}
+        >
           <Text style={styles.botonTexto}>Profesor</Text>
-          <Text style={styles.botonSub}>Gestionar clases · QR · Ver registros ({registros.length})</Text>
+          <Text style={styles.botonSub}>
+            {clases.length} {clases.length === 1 ? 'clase' : 'clases'}  ·  {registros.length} registros hoy
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.boton, styles.botonEstudiante]} onPress={() => setPantalla('estudiante')}>
+
+        <TouchableOpacity
+          style={[styles.boton, styles.botonEstudiante]}
+          onPress={() => setPantalla('estudiante')}
+        >
           <Text style={styles.botonTexto}>Estudiante</Text>
           <Text style={styles.botonSub}>Registrar asistencia con QR</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.version}>Semana 3 activa</Text>
+      <Text style={styles.version}>Semanas 1-3 completas</Text>
     </View>
   );
 }
