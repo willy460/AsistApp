@@ -1,5 +1,4 @@
 // components/ResultadoView.js
-// Pantalla de resultado del intento de registro (HU3).
 
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
@@ -15,16 +14,12 @@ export default function ResultadoView({ resultado, onVolver, onInicio }) {
       </View>
     );
   }
-
   const { exito, mensaje, detalle } = resultado;
-
   return (
     <View style={styles.contenedor}>
       <ScrollView contentContainerStyle={styles.cuerpo}>
         <View style={[styles.barra, exito ? styles.barraExito : styles.barraError]} />
-        <Text style={[styles.mensaje, exito ? styles.mensajeExito : styles.mensajeError]}>
-          {mensaje}
-        </Text>
+        <Text style={[styles.mensaje, exito ? styles.mensajeExito : styles.mensajeError]}>{mensaje}</Text>
         {detalle ? (
           <View style={[styles.caja, exito ? styles.cajaExito : styles.cajaError]}>
             <Text style={styles.detalle}>{detalle}</Text>

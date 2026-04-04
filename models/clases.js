@@ -1,7 +1,4 @@
 // models/clases.js
-// Modelo de datos para Clases.
-// El profesor crea cada clase desde cero (HU1).
-// No hay clases predeterminadas.
 
 export function crearClase(nombre, horaInicio, horaFin) {
   return {
@@ -11,7 +8,8 @@ export function crearClase(nombre, horaInicio, horaFin) {
     horaFin,
     fecha: new Date().toISOString().split('T')[0],
     creadaEn: new Date().toISOString(),
-    estudianteIds: [], // lista de IDs inscritos en esta clase
+    estudianteIds: [],
+    totalSesiones: 1, // cuantas veces se ha dictado la clase (para calcular %)
   };
 }
 

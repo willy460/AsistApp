@@ -1,6 +1,4 @@
 // models/asistencia.js
-// Modelo de registros de asistencia.
-// Cada registro se crea cuando un estudiante marca asistencia exitosamente.
 
 export function crearRegistroAsistencia(estudianteId, claseId, metodo = 'qr') {
   return {
@@ -8,27 +6,24 @@ export function crearRegistroAsistencia(estudianteId, claseId, metodo = 'qr') {
     estudianteId: estudianteId.toUpperCase(),
     claseId,
     timestamp: new Date().toISOString(),
-    metodo, // 'qr' o 'manual'
+    metodo,
   };
 }
 
-// Verifica si un estudiante ya registro asistencia en una clase (HU6)
 export function yaRegistrado(estudianteId, claseId, registros) {
   return registros.some(
     (r) => r.estudianteId === estudianteId.toUpperCase() && r.claseId === claseId
   );
 }
 
-// Calcula porcentaje de asistencia de un estudiante (HU10)
-export function calcularPorcentaje(estudianteId, registros, totalClases) {
-  if (totalClases === 0) return 0;
+export function calcularPorcentaje(estudianteId, registros, claseId, totalSesiones) {
+  if (totalSesiones === 0) return 0;
   const asistencias = registros.filter(
-    (r) => r.estudianteId === estudianteId.toUpperCase()
+    (r) => r.estudianteId === estudianteId.toUpperCase() && r.claseId === claseId
   ).length;
-  return Math.round((asistencias / totalClases) * 100);
+  return Math.round((asistencias / totalSesiones) * 100);
 }
 
-// Crea un log de intento fallido (HU12)
 export function crearLog(estudianteId, claseId, motivo) {
   return {
     id: 'log_' + Date.now(),
