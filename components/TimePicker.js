@@ -27,13 +27,15 @@ export default function TimePicker({ valor, onChange, label }) {
   const bajarHora  = () => onChange(`${((hh - 1 + 24) % 24).toString().padStart(2, '0')}:${mm}`);
 
   // ── Botones de minutos (ciclo entre 00/15/30/45) ──────────
-  const subirMin = () => {
-    const idx = MINUTOS_VALIDOS.indexOf(mm);
-    onChange(`${hhStr}:${MINUTOS_VALIDOS[(idx + 1) % MINUTOS_VALIDOS.length]}`);
+const subirMin = () => {
+    const actual = parseInt(mm, 10);
+    const nuevo = ((actual + 1) % 60).toString().padStart(2, '0');
+    onChange(`${hhStr}:${nuevo}`);
   };
   const bajarMin = () => {
-    const idx = MINUTOS_VALIDOS.indexOf(mm);
-    onChange(`${hhStr}:${MINUTOS_VALIDOS[(idx - 1 + MINUTOS_VALIDOS.length) % MINUTOS_VALIDOS.length]}`);
+    const actual = parseInt(mm, 10);
+    const nuevo = ((actual - 1 + 60) % 60).toString().padStart(2, '0');
+    onChange(`${hhStr}:${nuevo}`);
   };
 
   // ── Confirmar edicion de hora ─────────────────────────────
@@ -47,19 +49,13 @@ export default function TimePicker({ valor, onChange, label }) {
   };
 
   // ── Confirmar edicion de minutos ──────────────────────────
-  const confirmarMin = () => {
+const confirmarMin = () => {
     setEditandoMin(false);
     const num = parseInt(textoMin, 10);
-    // Redondear al bloque de 15 min mas cercano
-    let minFinal = '00';
-    if (!isNaN(num)) {
-      if (num < 8)       minFinal = '00';
-      else if (num < 23) minFinal = '15';
-      else if (num < 38) minFinal = '30';
-      else if (num < 53) minFinal = '45';
-      else               minFinal = '00';
+    // Aceptar cualquier valor entre 0 y 59
+    if (!isNaN(num) && num >= 0 && num <= 59) {
+      onChange(`${hhStr}:${num.toString().padStart(2, '0')}`);
     }
-    onChange(`${hhStr}:${minFinal}`);
     setTextoMin('');
   };
 
